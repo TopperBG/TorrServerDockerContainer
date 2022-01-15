@@ -1,0 +1,16 @@
+#!/bin/bash
+REPO="YouROK/TorrServer"
+TARGETVER=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | awk -F '"' '/tag_name/{print $4}')
+CURRENTVER=$(< current.ver)
+echo "$TARGETVER" > target.ver
+
+if [[ "$TARGETVER" != "$CURRENTVER" ]]; then
+    echo "Updating TorrServer..."
+    sed -i "s/^\(ENV TS_VERSION\s*=\s*\).*$/\1$TARGETVER/" Dockerfile
+    docker stop TorrServer
+    docker rm TorrServer
+    docker build -t torrserver:$TARGETVER .
+    docker run -d --name TorrServer --restart=always -v /torrserver/db:/torrserver/db  -p 8090:8090  torrserver:$TARGETVER
+    echo "$TARGETVER" > current.ver
+fi
+
