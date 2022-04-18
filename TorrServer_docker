@@ -17,7 +17,6 @@ if [[ "$TARGETVER" != "$CURRENTVER" ]]; then
     docker stop TorrServer
     docker rm TorrServer
     echo "$TARGETVER" > current.ver
-    cd $WORKDIR
     docker build -t torrserver:$TARGETVER .
     docker run -d --name TorrServer --restart=always -v /torrserver/db:/torrserver/db  -p 8090:8090  torrserver:$TARGETVER
 fi
